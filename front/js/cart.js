@@ -144,6 +144,8 @@ function modifyQtt() {
             productsLocalStorage[k].quantiteProduit = AllreadyExistingProduct.quantiteProduit;
 
             localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
+
+            location.reload();
         
         })
     }
@@ -168,7 +170,127 @@ function deleteProduct() {
 
             //Alerte produit supprimé et refresh
             alert("Ce produit a bien été supprimé du panier");
+            location.reload();
         })
     }
 }
 deleteProduct();
+
+// un objet regEx est utilisé pour étudier les correspondances d'un texte avec un motif donné
+//les expressions régulières ne sont pas un élément du langage js mais constitue en fait un autre langage en soi
+//Il peut arriver un moment où on a un document rempli de diverses données, éventuellement un qui contient des informations sur une longue liste de personnes, mais on a besoin que des adresses. C'est là que RegEx est utile. on peux utiliser RegEx pour parcourir les caractères du document et localiser une chaîne qui correspond au modèle qu'on spécifie
+
+
+//instauration formulaire avec regex
+
+function getForm() {
+    //ajout des regex
+    let form = document.querySelector(".cart__order__form");
+
+    //création des expressions régulières à voir sur google
+    let emailRegExp = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$');
+    let charRegExp = new RegExp("^[a-zA-Z ,.'-]+$"); //string expressions
+    //d'après ce que j'ai compris: caractère de a à z en minuscule et A à Z en majuscule et chiffre de 0 à 9 + le arobase @ {1 répétition}
+    let addressRegExp = new RegExp("^[0-9]{1,3}(([,. ]?){1}[-a-zA-Zàâäéèêëïîôöùûüç']+)*");
+    //question? comment va t-on faire pour une adresse postale américaine par exemple ? 
+    //l'expression restera la même ou va t-elle changer ?
+    //regex pour numéro de téléphone francais ^(((\+33\s)|0)[1-9]\s([0-9][0-9]\s){4})$
+
+
+
+    //écoute de la modification du prénom
+    form.firstName.addEventListener('change', function(){
+        validFirstName(this);
+    });
+
+    form.lastName.addEventListener('change', function(){
+        validLastName(this);
+    });
+
+    form.address.addEventListener('change', function(){
+        validAddress(this);
+    });
+
+    form.city.addEventListener('change', function(){
+        validCity(this);
+    });
+
+    form.email.addEventListener('change', function(){
+        validEmail(this);
+    });
+
+    //validation du prénom
+    const validFirstName = function(inputFirstName) {
+        let firstNameErrorMsg = inputFirstName.nextElementSibling;//refers to next elemeent
+
+        if (charRegExp.test(inputFirstName.value)) {
+            firstNameErrorMsg.innerHTML = '';
+        } else {
+            firstNameErrorMsg.innerHTML = 'veuillez renseigner ce champ.';
+        }
+    };
+
+    //validation du nom
+    const validLastName = function(inputLastName) {
+        let lastNameErrorMsg = inputLastName.nextElementSibling;
+
+        if (charRegExp.test(inputLastName.value)) {
+            lastNameErrorMsg.innerHTML = '';
+        } else {
+            lastNameErrorMsg.innerHTML = 'veuillez renseigner ce champ.';
+        }
+    };
+
+    //validation de l'adresse 
+    const validAddress = function(inputAddress) {
+        let addressErrorMsg = inputAddress.nextElementSibling;
+
+        if (addressRegExp.test(inputAddress.value)) {
+            addressErrorMsg.innerHTML = '';
+        } else {
+            addressErrorMsg.innerHTML = 'veuillez renseigner votre adresse.';
+        }
+    };
+
+    //valdidation de la ville
+    const validCity = function(inputCity) {
+        let cityErrorMsg = inputCity.nextElementSibling;
+
+        if (charRegExp.test(inputCity.value)) {
+            cityErrorMsg.innerHTML = '';
+        } else {
+            cityErrorMsg.innerHTML = 'veuillez renseigner ce champ.';
+        }
+    };
+
+    //validation du mail
+    const validEmail = function(inputEmail) {
+        let emailErrorMsg = inputEmail.nextElementSibling;
+
+        if (emailRegExp.test(inputEmail.value)) {
+            emailErrorMsg.innerHTML = '';
+        } else {
+            emailErrorMsg.innerHTML = 'veuillez renseigner votre email.';
+        }
+    };
+}
+//getForm();
+
+
+
+
+//Ce qui reste à faire:
+//A-Envoie des informations client au localstorage 
+    //1-créer une fonction que j'appelerais PostForm
+    //écouter le panier au clique sur le bouton "commander"
+    //construire le array depuis le localstorage
+
+
+function PostForm(){
+    const btn_commander = document.getElementById("order");
+
+}
+
+
+
+
