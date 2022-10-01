@@ -1,4 +1,76 @@
-function displayProducts(product){
+// je définis une variable globale
+let product = "";
+
+// je définis toutes mes fonctions
+
+//Gestion du panier
+function addToCart(product) {
+    const btn_envoyerPanier = document.querySelector("#addToCart");
+    const quantityPicked = document.querySelector("#quantity");
+    const colorPicked = document. querySelector("#colors");
+    //Ecouter le panier avec 2 conditions couleur non nulle et quantité entre 1 et 100
+    btn_envoyerPanier.addEventListener("click", (event)=> {
+        if (quantityPicked.value > 0 && quantityPicked.value <=100 && quantityPicked.value != 0) {
+            //Recupération du choix de la couleur
+            let choixCouleur = colorPicked.value;
+            //Recupération du choix de la quantité
+            let choixQuantite = quantityPicked.value;
+            //Récupération des options de product à ajouter au panier
+            let optionsProduit = {
+                idProduit: product._id,
+                couleurProduit: choixCouleur,
+                quantiteProduit: Number(choixQuantite),
+                nomProduit: product.name,
+                // TODO dont save the price of the product in the local storage
+                prixProduit: product.price,
+                descriptionProduit: product.description,
+                imgProduit: product.imageUrl,
+                altImgProduit: product.altTxt
+            };
+            //Initialisation du local storage
+            let productsLocalStorage = JSON.parse(localStorage.getItem("produit"));
+            //fenêtre pop-up
+            //indique au navigateur d'afficher une boîte de dialogue avec un message optionnel et d'attendre que la personne confirme ou annule la boîte de dialogue.
+            //Ces boîtes de dialogue sont des fenêtres modales qui empêchent d'accéder au reste de l'interface utilisateur du programme, à moins que la boîte de dialogue soit fermée. Aussi, il ne faut pas abuser de cette fonction
+            const popupConfirmation =() =>{
+                if(window.confirm(`Votre commande de ${choixQuantite} ${product.name} ${choixCouleur} est ajoutée au panier
+                Pour consulter votre panier, cliquez sur OK`)){
+                    window.location.href ="cart.html";
+                }
+            }
+            //Importation dans le local storage
+            //Si le panier comporte déjà au moins 1 article
+            if (productsLocalStorage) {
+            const AllreadyExistingProduct = productsLocalStorage.find(
+                (el) => el.idProduit === product._id && el.couleurProduit === choixCouleur);
+                //Si le produit commandé est déjà dans le panier
+                if (AllreadyExistingProduct) {
+                    let newQuantite =
+                    parseInt(optionsProduit.quantiteProduit) + parseInt(AllreadyExistingProduct.quantiteProduit);
+                    AllreadyExistingProduct.quantiteProduit = newQuantite;
+                    localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
+                    console.table(productsLocalStorage);
+                    popupConfirmation();
+                //Si le produit commandé n'est pas dans le panier
+                } else {
+                    productsLocalStorage.push(optionsProduit);
+                    localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
+                    console.table(productsLocalStorage);
+                    popupConfirmation();
+                }
+            //Si le panier est vide
+            } else {
+                productsLocalStorage =[];
+                productsLocalStorage.push(optionsProduit);
+                localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
+                console.table(productsLocalStorage);
+                popupConfirmation();
+            }
+        }
+    });
+}
+
+function displayProduct(product) {
     // Insertion de l'image
     let productImg = document.createElement("img");
     document.querySelector(".item__img").appendChild(productImg);//on utilise ici query selector psk l'élément indiqué n'a pas d'id
@@ -27,116 +99,32 @@ function displayProducts(product){
     addToCart(product);
 }
 
-var str = window.location.href;
-var url = new URL(str);
-var idProduct = url.searchParams.get("id");
-console.log(idProduct);
-let product = "";
-
-const colorPicked = document. querySelector("#colors");
-const quantityPicked = document.querySelector("#quantity");
-
 // Récupération des products de l'API
-function getProducts() {
+function getProducts(idProduct) {
     fetch("http://localhost:3000/api/products/" + idProduct)
     .then((res) => {
         return res.json();
     })
-
     // Répartition des données de l'API dans le DOM
     .then(async function (resultatAPI) {
         product = await resultatAPI;
-        console.table(product);
-        if (product){
-            displayProducts(product);
+        if (product) {
+            displayProduct(product);
         }
     })
     .catch((error) => {
-        console.log("Erreur de la requête API");
+        console.error("Erreur de la requête API");
     })
-}
+}  
 
-window.addEventListener('DOMContentLoaded', (event) => {
+// utiliser le domcontentload pour pouvoir executer le code js qui va manipuler le DOM uniquement quand la page est entièrement chargée
+window.addEventListener("DOMContentLoaded", e => {
+
     var str = window.location.href;//va stocker l'url de la page en cours, l'utilisateur peut naviguer vers une autre page, peut revenir à la page précédente
     var url = new URL(str);//créer une url pointant vers ↑
     var idProduct = url.searchParams.get("id");//la méthode get des urlserachparam retourne la 1ère valeur associé au paramètre donné
-    console.log(idProduct);//affiche l'id
-    let product = "";
 
-    const colorPicked = document. querySelector("#colors");
-    const quantityPicked = document.querySelector("#quantity");
+    getProducts(idProduct);
 
-getProducts();
-    
 });
-    
 
-//Gestion du panier
-function addToCart(product) {
-    const btn_envoyerPanier = document.querySelector("#addToCart");
-
-    //Ecouter le panier avec 2 conditions couleur non nulle et quantité entre 1 et 100
-    btn_envoyerPanier.addEventListener("click", (event)=>{
-        if (quantityPicked.value > 0 && quantityPicked.value <=100 && quantityPicked.value != 0){
-
-    //Recupération du choix de la couleur
-    let choixCouleur = colorPicked.value;
-                
-    //Recupération du choix de la quantité
-    let choixQuantite = quantityPicked.value;
-
-    //Récupération des options de product à ajouter au panier
-    let optionsProduit = {
-        idProduit: idProduct,
-        couleurProduit: choixCouleur,
-        quantiteProduit: Number(choixQuantite),
-        nomProduit: product.name,
-        prixProduit: product.price,
-        descriptionProduit: product.description,
-        imgProduit: product.imageUrl,
-        altImgProduit: product.altTxt
-    };
-
-    //Initialisation du local storage
-    let productsLocalStorage = JSON.parse(localStorage.getItem("produit"));
-
-    //fenêtre pop-up
-    //indique au navigateur d'afficher une boîte de dialogue avec un message optionnel et d'attendre que la personne confirme ou annule la boîte de dialogue.
-    //Ces boîtes de dialogue sont des fenêtres modales qui empêchent d'accéder au reste de l'interface utilisateur du programme, à moins que la boîte de dialogue soit fermée. Aussi, il ne faut pas abuser de cette fonction
-    const popupConfirmation =() =>{
-        if(window.confirm(`Votre commande de ${choixQuantite} ${product.name} ${choixCouleur} est ajoutée au panier
-        Pour consulter votre panier, cliquez sur OK`)){
-            window.location.href ="cart.html";
-        }
-    }
-
-    //Importation dans le local storage
-    //Si le panier comporte déjà au moins 1 article
-    if (productsLocalStorage) {
-    const AllreadyExistingProduct = productsLocalStorage.find(
-        (el) => el.idProduit === idProduct && el.couleurProduit === choixCouleur);
-        //Si le produit commandé est déjà dans le panier
-        if (AllreadyExistingProduct) {
-            let newQuantite =
-            parseInt(optionsProduit.quantiteProduit) + parseInt(AllreadyExistingProduct.quantiteProduit);
-            AllreadyExistingProduct.quantiteProduit = newQuantite;
-            localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
-            console.table(productsLocalStorage);
-            popupConfirmation();
-        //Si le produit commandé n'est pas dans le panier
-        } else {
-            productsLocalStorage.push(optionsProduit);
-            localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
-            console.table(productsLocalStorage);
-            popupConfirmation();
-        }
-    //Si le panier est vide
-    } else {
-        productsLocalStorage =[];
-        productsLocalStorage.push(optionsProduit);
-        localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
-        console.table(productsLocalStorage);
-        popupConfirmation();
-    }}
-    });
-}

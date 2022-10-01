@@ -1,9 +1,9 @@
-// TODO afficher une seule carte de produit pour un produit qui a plusieurs items (en affichant la bonne quantité)
-// TODO pouvoir supprimer un produit affiché (donc suppression aussi dans le local storage)
-// TODO pouvoir modifier la quantité d'un produit affiché (donc modification aussi dans le local storage)
+let productsLocalStorage = JSON.parse(localStorage.getItem("produit"));
+    console.table(productsLocalStorage);
+    const positionEmptyCart = document.querySelector("#cart__items");
 
 // Si le panier est vide
-function getCart(productsLocalStorage, positionEmptyCart){
+function getCart(/**productsLocalStorage, positionEmptyCart*/){
     if (productsLocalStorage === null || productsLocalStorage == 0) {
         const emptyCart = `<p>Votre panier est vide</p>`;
         positionEmptyCart.innerHTML = emptyCart;
@@ -91,7 +91,7 @@ function getCart(productsLocalStorage, positionEmptyCart){
     }
 }
 
-function getTotals(productsLocalStorage) {
+function getTotals(/**productsLocalStorage*/) {
     // Récupération du total des quantités
     var elemsQtt = document.getElementsByClassName('itemQuantity');
     var myLength = elemsQtt.length,//la propriété lenght indique le nombre d'élément présent dans le tableau (number)
@@ -114,7 +114,7 @@ function getTotals(productsLocalStorage) {
 }
 
 // Modification d'une quantité de produit
-function modifyQtt(productsLocalStorage) {
+function modifyQtt(/**productsLocalStorage*/) {
     let qttModif = document.querySelectorAll(".itemQuantity");
     for (let k = 0; k < qttModif.length; k++) {
         qttModif[k].addEventListener("change" , (event) => {//l'événement change est déclenché pour les éléments input , select, et textarea
@@ -131,19 +131,19 @@ function modifyQtt(productsLocalStorage) {
 }
 
 // Suppression d'un produit
-function deleteProduct(productsLocalStorage) {
+function deleteProduct(/**productsLocalStorage*/) {
     let btn_supprimer = document.querySelectorAll(".deleteItem");
     for (let j = 0; j < btn_supprimer.length; j++){
-        btn_supprimer[j].addEventListener("click" , (event) => {//simule un clic de souris sur un élément
+        btn_supprimer[j].addEventListener("click" , (event) => { //réagit à un clic de souris sur un élément
             event.preventDefault();//si l'événement n'est pas géré, l'action par défaut ne devrait pas etre éxécuté normalement
             //Selection de l'element à supprimer en fonction de son id ET sa couleur
             let idDelete = productsLocalStorage[j].idProduit;
             let colorDelete = productsLocalStorage[j].couleurProduit;
             productsLocalStorage = productsLocalStorage.filter( el => el.idProduit !== idDelete || el.couleurProduit !== colorDelete );
             localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
+            // TODO remove the deleted product from the DOM (so it is not displayed to the user anymore)
             //Alerte produit supprimé et refresh
             alert("Ce produit a bien été supprimé du panier");
-            // location.reload();
         })
     }
 }
@@ -159,7 +159,6 @@ function getForm() {
     let emailRegExp = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$');
     let charRegExp = new RegExp("^[a-zA-Z ,.'-]+$"); //string expressions
     //d'après ce que j'ai compris: caractère de a à z en minuscule et A à Z en majuscule et chiffre de 0 à 9 + le arobase @ {1 répétition}
-
     let addressRegExp = new RegExp("^([0-9]|[-a-zA-Zàâäéèêëïîôöùûüç']|\s)+");
     //question? comment va t-on faire pour une adresse postale américaine par exemple ? 
     //l'expression restera la même ou va t-elle changer ?
@@ -231,29 +230,72 @@ function getForm() {
         validEmail(this);
     });
 }
+getForm();
 
-//Ce qui reste à faire:
-//A-Envoie des informations client au localstorage 
-    // ne pas utiliser location.reload
-    //1-créer une fonction que j'appelerais PostForm
-    //écouter le panier au clique sur le bouton "commander"
-    //construire le array depuis le localstorage
-function PostForm(){
+//Envoi des informations client au localstorage
+function postForm(){
     const btn_commander = document.getElementById("order");
 
+    //Ecouter le panier
+    btn_commander.addEventListener("click", (event)=>{
+    
+        //Récupération des coordonnées du formulaire client
+        let inputName = document.getElementById('firstName');
+        let inputLastName = document.getElementById('lastName');
+        let inputAdress = document.getElementById('address');
+        let inputCity = document.getElementById('city');
+        let inputMail = document.getElementById('email');
+
+        //Construction d'un array depuis le local storage
+        let idProducts = [];
+        for (let i = 0; i<productsLocalStorage.length;i++) {
+            idProducts.push(productsLocalStorage[i].idProduit);
+        }
+        console.log(idProducts);
+
+        const order = {
+            contact : {
+                firstName: inputName.value,
+                lastName: inputLastName.value,
+                address: inputAdress.value,
+                city: inputCity.value,
+                email: inputMail.value,
+            },
+            products: idProducts,
+        } 
+
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(order),
+            headers: {
+                'Accept': 'application/json', 
+                "Content-Type": "application/json" 
+            },
+        };
+
+        fetch("http://localhost:3000/api/products/order", options)
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                localStorage.clear();
+                localStorage.setItem("orderId", data.orderId);
+                document.location.href = "confirmation.html";
+            })
+            .catch((err) => {
+                alert ("Problème avec fetch : " + err.message);
+            });
+    })
 }
-
-
+postForm();
 
 // TODO separate code that interacts with the DOM with the one that simply defines function
 // TODO also in product.js
 window.addEventListener("DOMContentLoaded", e => {
 
-    //Initialisation du local storage
     let productsLocalStorage = JSON.parse(localStorage.getItem("produit"));
-
+    console.table(productsLocalStorage);
     const positionEmptyCart = document.querySelector("#cart__items");
-
+    
     // affichage du panier
     getCart(productsLocalStorage, positionEmptyCart);
 
@@ -267,7 +309,4 @@ window.addEventListener("DOMContentLoaded", e => {
     deleteProduct(productsLocalStorage);
     // event listener du formulaire
     getForm();
-
 });
-
-
