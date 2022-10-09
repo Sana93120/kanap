@@ -21,8 +21,6 @@ function addToCart(product) {
                 couleurProduit: choixCouleur,
                 quantiteProduit: Number(choixQuantite),
                 nomProduit: product.name,
-                // TODO dont save the price of the product in the local storage
-                prixProduit: product.price,
                 descriptionProduit: product.description,
                 imgProduit: product.imageUrl,
                 altImgProduit: product.altTxt
@@ -70,6 +68,7 @@ function addToCart(product) {
     });
 }
 
+//mis en page des produits 
 function displayProduct(product) {
     // Insertion de l'image
     let productImg = document.createElement("img");
