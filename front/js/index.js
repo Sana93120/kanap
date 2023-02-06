@@ -4,7 +4,7 @@ window.addEventListener('DOMContentLoaded', async (event) => {
 
     // Récupération des articles de l'API
     async function getArticles() {//on va créer une fonction asynchrone
-        var articlesCatch = await fetch("http://localhost:3000/api/products")//on attend la résolution de la promise
+        var articlesCatch = await fetch("http://localhost:3000/api/products") //on attend la résolution de la promise
         return await articlesCatch.json();//retourne la promise
     } 
 
@@ -15,14 +15,6 @@ window.addEventListener('DOMContentLoaded', async (event) => {
             const articles = resultatAPI;
             console.table(articles);//affiche les données sous forme de tableau
             for (let article in articles) {//on a créer une boucle, qui va itérer chaque produit
-
-                //<a href="./product.html?id=42">
-                //<article>
-                //<img src=".../product01.jpg" alt="Lorem ipsum dolor sit amet, Kanap name1">
-                //<h3 class="productName">Kanap name1</h3>
-                //<p class="productDescription">Dis enim malesuada risus sapien gravida nulla nisl arcu. Dis enim malesuada risus sapien gravida nulla nisl arcu.</p>
-                //</article>
-                //</a>
 
                 // Insertion de l'élément "a"
                 let productLink = document.createElement("a");//va créer un élément "a"
@@ -48,7 +40,7 @@ window.addEventListener('DOMContentLoaded', async (event) => {
                 // Insertion de la description "p"
                 let productDescription = document.createElement("p");
                 productArticle.appendChild(productDescription);
-                productDescription.innerHTML = resultatAPI[article].description;//pareil
+                productDescription.innerHTML = resultatAPI[article].description;//pareil-
             }
         })
         .catch (function(error){ //si la promise est rejeté, ca va retourner une erreur (pas dans la console)

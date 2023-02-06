@@ -1,8 +1,6 @@
 // je définis une variable globale
 let product = "";
 
-// je définis toutes mes fonctions
-
 //Gestion du panier
 function addToCart(product) {
     const btn_envoyerPanier = document.querySelector("#addToCart");
@@ -21,6 +19,7 @@ function addToCart(product) {
                 couleurProduit: choixCouleur,
                 quantiteProduit: Number(choixQuantite),
                 nomProduit: product.name,
+                //prixProduit: product.price, 
                 descriptionProduit: product.description,
                 imgProduit: product.imageUrl,
                 altImgProduit: product.altTxt
@@ -99,14 +98,14 @@ function displayProduct(product) {
 }
 
 // Récupération des products de l'API
-function getProducts(idProduct) {
+function getProduct(idProduct) {
     fetch("http://localhost:3000/api/products/" + idProduct)
     .then((res) => {
         return res.json();
     })
     // Répartition des données de l'API dans le DOM
     .then(async function (resultatAPI) {
-        product = await resultatAPI;
+        const product = await resultatAPI;
         if (product) {
             displayProduct(product);
         }
@@ -123,7 +122,7 @@ window.addEventListener("DOMContentLoaded", e => {
     var url = new URL(str);//créer une url pointant vers ↑
     var idProduct = url.searchParams.get("id");//la méthode get des urlserachparam retourne la 1ère valeur associé au paramètre donné
 
-    getProducts(idProduct);
+    getProduct(idProduct);
 
 });
 
