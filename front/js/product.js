@@ -5,7 +5,7 @@ let product = "";
 function addToCart(product) {
     const btn_envoyerPanier = document.querySelector("#addToCart");
     const quantityPicked = document.querySelector("#quantity");
-    const colorPicked = document. querySelector("#colors");
+    const colorPicked = document.querySelector("#colors");
     //Ecouter le panier avec 2 conditions couleur non nulle et quantité entre 1 et 100
     btn_envoyerPanier.addEventListener("click", (event)=> {
         if (quantityPicked.value > 0 && quantityPicked.value <=100 && quantityPicked.value != 0) {
@@ -24,6 +24,7 @@ function addToCart(product) {
                 imgProduit: product.imageUrl,
                 altImgProduit: product.altTxt
             };
+    
             //Initialisation du local storage
             let productsLocalStorage = JSON.parse(localStorage.getItem("produit"));
             //fenêtre pop-up
@@ -63,6 +64,8 @@ function addToCart(product) {
                 console.table(productsLocalStorage);
                 popupConfirmation();
             }
+        } else{
+            alert("veuillez choisir une quantité inférieur à 100 ou choisir une couleur pour le produit !");
         }
     });
 }

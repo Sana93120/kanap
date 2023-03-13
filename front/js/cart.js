@@ -129,19 +129,31 @@ function getTotals(productsLocalStorage){
 // Modification d'une quantité de produit
 function modifyQtt(productsLocalStorage) {
     let qttModif = document.querySelectorAll(".itemQuantity");
-    for (let k = 0; k < qttModif.length; k++) {
-        qttModif[k].addEventListener("change" , (event) => {//l'événement change est déclenché pour les éléments input , select, et textarea
-            event.preventDefault();//si l'événement n'est pas géré, l'action par défaut ne devrait pas etre éxécuté normalement
+
+    for (let k = 0; k < qttModif.length; k++){
+        qttModif[k].addEventListener("change" , (event) => { //l'événement change est déclenché pour les éléments input , select, et textarea
+            event.preventDefault(); //si l'événement n'est pas géré, l'action par défaut ne devrait pas etre éxécuté normalement
+
             //Selection de l'element à modifier en fonction de son id ET sa couleur
             let quantityModif = productsLocalStorage[k].quantiteProduit;
             let qttModifValue = qttModif[k].valueAsNumber;
+
             const alreadyExistingProduct  = productsLocalStorage.find((el) => el.qttModifValue !== quantityModif);
-            alreadyExistingProduct .quantiteProduit = qttModifValue;
+
+            alreadyExistingProduct.quantiteProduit = qttModifValue;
             productsLocalStorage[k].quantiteProduit = alreadyExistingProduct.quantiteProduit;
+
             localStorage.setItem("produit", JSON.stringify(productsLocalStorage));
+            
+            location.reload();
+
+            if(qttModifValue> 100){
+                alert("Veuillez choisir une quantité inférieur à 100 s'il vous plaît !");
+            }
         })
     }
 }
+
 
 // Suppression d'un produit
 function deleteProduct(productsLocalStorage) {
@@ -158,6 +170,7 @@ function deleteProduct(productsLocalStorage) {
             alert("Ce produit a bien été supprimé du panier");
             // sélectionner la carte produit correspondant à `idDelete` et le retirer du DOM
             document.querySelector(`[data-id="${idDelete}"]`).remove();
+            location.reload();
         })
     }
 }
@@ -206,7 +219,7 @@ const validAddress = (inputAddress) => {
         return false;
     }
 };
-//valdidation de la ville
+//validation de la ville
 const validCity = (inputCity) => {
     let cityErrorMsg = inputCity.nextElementSibling;
     if (charRegExp.test(inputCity.value)) {
@@ -304,7 +317,9 @@ function postForm(productsLocalStorage){
                 .then((data) => {
                     localStorage.clear();
                     localStorage.setItem("orderId", data.orderId);
-                    document.location.href = "confirmation.html";
+
+                    window.location.replace(`./confirmation.html?orderId=${data.orderId}`)
+                    //rectifier 
                 })
                 .catch((err) => {
                     alert ("Problème avec fetch : " + err.message);
